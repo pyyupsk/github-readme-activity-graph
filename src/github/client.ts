@@ -59,5 +59,6 @@ export function describeError(err: unknown): string {
   if (err instanceof RateLimitedError)
     return '💥 API rate limit exceeded. Please deploy your own instance.'
   if (err instanceof InvalidUserError) return err.message
+  if (err instanceof Error && err.name === 'TimeoutError') return '💥 GitHub API request timed out'
   return 'Something unexpected happened 💥'
 }
