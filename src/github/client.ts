@@ -47,3 +47,9 @@ export async function fetchContributions(
 
   return { name: body.data.user.name, contributions }
 }
+
+export function describeError(err: unknown): string {
+  if (err instanceof RateLimitedError) return '💥 API rate limit exceeded. Please deploy your own instance.'
+  if (err instanceof InvalidUserError) return err.message
+  return 'Something unexpected happened 💥'
+}
