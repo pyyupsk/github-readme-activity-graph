@@ -41,7 +41,10 @@ function parseDate(value: string | undefined): string | null {
   return parsed.toISOString()
 }
 
-export function resolveRange(params: Pick<GraphParams, 'from' | 'to' | 'days'>): { from: string; to: string } {
+export function resolveRange(params: Pick<GraphParams, 'from' | 'to' | 'days'>): {
+  from: string
+  to: string
+} {
   return {
     from: params.from ?? new Date(Date.now() - params.days * 86_400_000).toISOString(),
     to: params.to ?? new Date(Date.now() + 86_400_000).toISOString(),

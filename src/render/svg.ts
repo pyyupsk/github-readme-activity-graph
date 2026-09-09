@@ -3,7 +3,10 @@ import { buildChart } from './chart'
 import type { Colors } from './theme'
 
 function escapeXml(text: string): string {
-  return text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]!)
+  return text.replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]!,
+  )
 }
 
 export interface GraphSvgArgs {
@@ -17,7 +20,16 @@ export interface GraphSvgArgs {
   contributions: ContributionDay[]
 }
 
-export function graphSvg({ width, height, radius, colors, title, area, grid, contributions }: GraphSvgArgs): string {
+export function graphSvg({
+  width,
+  height,
+  radius,
+  colors,
+  title,
+  area,
+  grid,
+  contributions,
+}: GraphSvgArgs): string {
   const padding = { top: title ? 60 : 20, right: 20, bottom: 30, left: 20 }
   const chart = buildChart(contributions, { width, height, padding })
 

@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+
 import { dataRoute } from './routes/data'
 import { graphRoute } from './routes/graph'
 

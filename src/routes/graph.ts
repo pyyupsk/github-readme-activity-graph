@@ -1,10 +1,11 @@
 import { Hono } from 'hono'
+
 import { describeError, fetchContributions } from '../github/client'
 import { withCache } from '../lib/cache'
 import { parseParams, resolveRange } from '../lib/params'
+import { errorSvg, graphSvg } from '../render/svg'
 import type { Colors } from '../render/theme'
 import { selectTheme } from '../render/theme'
-import { errorSvg, graphSvg } from '../render/svg'
 
 type Bindings = { GH_TOKEN: string }
 

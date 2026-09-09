@@ -14,7 +14,10 @@ export interface ChartResult {
   labels: { x: number; y: number; text: string }[]
 }
 
-export function buildChart(days: ContributionDay[], { width, height, padding }: ChartOptions): ChartResult {
+export function buildChart(
+  days: ContributionDay[],
+  { width, height, padding }: ChartOptions,
+): ChartResult {
   const plotWidth = width - padding.left - padding.right
   const plotHeight = height - padding.top - padding.bottom
   const max = Math.max(1, ...days.map((d) => d.contributionCount))

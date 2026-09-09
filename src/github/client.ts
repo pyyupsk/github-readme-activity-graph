@@ -2,8 +2,8 @@ import { safe } from '../lib/safe'
 import { contributionsQuery } from './query'
 import type { ContributionDay, ContributionsResult, GraphQLResponse } from './types'
 
-export class RateLimitedError extends Error { }
-export class InvalidUserError extends Error { }
+export class RateLimitedError extends Error {}
+export class InvalidUserError extends Error {}
 
 export async function fetchContributions(
   username: string,
@@ -41,15 +41,17 @@ export async function fetchContributions(
     throw new InvalidUserError(`Can't fetch contributions for "${username}"`)
   }
 
-  const contributions: ContributionDay[] = body.data.user.contributionsCollection.contributionCalendar.weeks.flatMap(
-    (week) => week.contributionDays,
-  )
+  const contributions: ContributionDay[] =
+    body.data.user.contributionsCollection.contributionCalendar.weeks.flatMap(
+      (week) => week.contributionDays,
+    )
 
   return { name: body.data.user.name, contributions }
 }
 
 export function describeError(err: unknown): string {
-  if (err instanceof RateLimitedError) return '💥 API rate limit exceeded. Please deploy your own instance.'
+  if (err instanceof RateLimitedError)
+    return '💥 API rate limit exceeded. Please deploy your own instance.'
   if (err instanceof InvalidUserError) return err.message
   return 'Something unexpected happened 💥'
 }
