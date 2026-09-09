@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 
 import { describeError, fetchContributions } from '../github/client'
 import { withCache } from '../lib/cache'
+import type { ColorOverrides, GraphParams } from '../lib/params'
 import { parseParams, resolveRange } from '../lib/params'
 import { errorSvg, graphSvg } from '../render/svg'
 import type { Colors } from '../render/theme'
@@ -10,6 +11,16 @@ import { selectTheme } from '../render/theme'
 type Bindings = { GH_TOKEN: string }
 
 export const graphRoute = new Hono<{ Bindings: Bindings }>()
+
+function resolveColors(theme: string, overrides: ColorOverrides): Colors {
+  const defined = Object.fromEntries(Object.entries(overrides).filter(([, v]) => v))
+  return { ...selectTheme(theme), ...defined }
+}
+
+function resolveTitle(params: GraphParams, name: string | null | undefined): string | null {
+  if (params.hideTitle) return null
+  return params.title ?? `${name ?? params.username}'s Contribution Graph`
+}
 
 graphRoute.get('/graph', (c) =>
   withCache(c.req.raw, c.executionCtx, async () => {
@@ -24,20 +35,12 @@ graphRoute.get('/graph', (c) =>
     try {
       const data = await fetchContributions(params.username, c.env.GH_TOKEN, from, to)
 
-      const theme = selectTheme(params.theme)
-      const overrides = Object.fromEntries(Object.entries(params.colors).filter(([, v]) => v))
-      const colors: Colors = { ...theme, ...overrides }
-
-      const title = params.hideTitle
-        ? null
-        : (params.title ?? `${data.name ?? params.username}'s Contribution Graph`)
-
       const svg = graphSvg({
         width: 1200,
         height: params.height,
         radius: params.radius,
-        colors,
-        title,
+        colors: resolveColors(params.theme, params.colors),
+        title: resolveTitle(params, data.name),
         area: params.area,
         grid: params.grid,
         contributions: data.contributions,

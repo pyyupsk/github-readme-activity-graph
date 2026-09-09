@@ -20,6 +20,34 @@ export interface GraphSvgArgs {
   contributions: ContributionDay[]
 }
 
+function styleBlock(colors: Colors): string {
+  return `
+    <style>
+      .title { font: 600 20px 'Segoe UI', Ubuntu, sans-serif; fill: #${colors.titleColor}; }
+      .grid { stroke: #${colors.text}; stroke-width: 1px; stroke-opacity: 0.3; stroke-dasharray: 2px; }
+      .line { fill: none; stroke: #${colors.line}; stroke-width: 3px; }
+      .area { fill: #${colors.fill}; fill-opacity: 0.15; stroke: none; }
+      .point { fill: #${colors.point}; }
+      .label { font: 400 11px 'Segoe UI', Ubuntu, sans-serif; fill: #${colors.text}; }
+    </style>
+  `
+}
+
+function titleBlock(title: string | null): string {
+  return title ? `<text x="20" y="34" class="title">${escapeXml(title)}</text>` : ''
+}
+
+function gridBlock(grid: boolean, lines: ReturnType<typeof buildChart>['gridLines']): string {
+  if (!grid) return ''
+  return lines
+    .map((l) => `<line x1="${l.x1}" y1="${l.y1}" x2="${l.x2}" y2="${l.y2}" class="grid" />`)
+    .join('')
+}
+
+function areaBlock(area: boolean, areaPath: string): string {
+  return area ? `<path d="${areaPath}" class="area" />` : ''
+}
+
 export function graphSvg({
   width,
   height,
@@ -38,20 +66,13 @@ export function graphSvg({
       <rect x="0" y="0" rx="${radius}" width="100%" height="100%"
         fill="#${colors.bg}" stroke="#${colors.border}" stroke-width="1" />
 
-      <style>
-        .title { font: 600 20px 'Segoe UI', Ubuntu, sans-serif; fill: #${colors.titleColor}; }
-        .grid { stroke: #${colors.text}; stroke-width: 1px; stroke-opacity: 0.3; stroke-dasharray: 2px; }
-        .line { fill: none; stroke: #${colors.line}; stroke-width: 3px; }
-        .area { fill: #${colors.fill}; fill-opacity: 0.15; stroke: none; }
-        .point { fill: #${colors.point}; }
-        .label { font: 400 11px 'Segoe UI', Ubuntu, sans-serif; fill: #${colors.text}; }
-      </style>
+      ${styleBlock(colors)}
 
-      ${title ? `<text x="20" y="34" class="title">${escapeXml(title)}</text>` : ''}
+      ${titleBlock(title)}
 
-      ${grid ? chart.gridLines.map((l) => `<line x1="${l.x1}" y1="${l.y1}" x2="${l.x2}" y2="${l.y2}" class="grid" />`).join('') : ''}
+      ${gridBlock(grid, chart.gridLines)}
 
-      ${area ? `<path d="${chart.areaPath}" class="area" />` : ''}
+      ${areaBlock(area, chart.areaPath)}
       <path d="${chart.linePath}" class="line" />
 
       ${chart.points.map((p) => `<circle cx="${p.x}" cy="${p.y}" r="3" class="point" />`).join('')}

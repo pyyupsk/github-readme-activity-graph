@@ -2,8 +2,23 @@ import { safe } from '../lib/safe'
 import { contributionsQuery } from './query'
 import type { ContributionDay, ContributionsResult, GraphQLResponse } from './types'
 
-export class RateLimitedError extends Error {}
-export class InvalidUserError extends Error {}
+class RateLimitedError extends Error {}
+class InvalidUserError extends Error {}
+
+function assertNoErrors(body: GraphQLResponse, username: string): void {
+  if (!body.errors) return
+  if (body.errors[0].type === 'RATE_LIMITED') {
+    throw new RateLimitedError('GitHub API rate limit exceeded')
+  }
+  throw new InvalidUserError(`Can't fetch contributions for "${username}"`)
+}
+
+function assertValidBody(body: GraphQLResponse, username: string): void {
+  assertNoErrors(body, username)
+  if (!body.data?.user) {
+    throw new InvalidUserError(`Can't fetch contributions for "${username}"`)
+  }
+}
 
 export async function fetchContributions(
   username: string,
@@ -29,24 +44,14 @@ export async function fetchContributions(
   if (err) throw err
 
   const body = (await res.json()) as GraphQLResponse
-
-  if (body.errors) {
-    if (body.errors[0].type === 'RATE_LIMITED') {
-      throw new RateLimitedError('GitHub API rate limit exceeded')
-    }
-    throw new InvalidUserError(`Can't fetch contributions for "${username}"`)
-  }
-
-  if (!body.data?.user) {
-    throw new InvalidUserError(`Can't fetch contributions for "${username}"`)
-  }
+  assertValidBody(body, username)
 
   const contributions: ContributionDay[] =
-    body.data.user.contributionsCollection.contributionCalendar.weeks.flatMap(
+    body.data!.user!.contributionsCollection.contributionCalendar.weeks.flatMap(
       (week) => week.contributionDays,
     )
 
-  return { name: body.data.user.name, contributions }
+  return { name: body.data!.user!.name, contributions }
 }
 
 export function describeError(err: unknown): string {

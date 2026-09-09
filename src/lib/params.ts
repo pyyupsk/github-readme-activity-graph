@@ -51,37 +51,56 @@ export function resolveRange(params: Pick<GraphParams, 'from' | 'to' | 'days'>):
   }
 }
 
-export function parseParams(query: Record<string, string | undefined>): GraphParams {
-  const username = query.user ?? ''
+function isValidRange(from: string | null, to: string | null): boolean {
+  return from !== null && to !== null && from < to && to <= new Date().toISOString()
+}
 
+function parseColors(query: Record<string, string | undefined>): ColorOverrides {
+  return {
+    bg: query.bg,
+    border: query.border,
+    text: query.text,
+    titleColor: query['title-color'],
+    line: query.line,
+    point: query.point,
+    fill: query.fill,
+  }
+}
+
+function resolveDateRange(query: Record<string, string | undefined>): {
+  from: string | null
+  to: string | null
+  days: number
+} {
   const from = parseDate(query.from)
   const to = parseDate(query.to)
-  const hasValidRange = from !== null && to !== null && from < to && to <= new Date().toISOString()
 
-  const days = hasValidRange
-    ? Math.round((Date.parse(to as string) - Date.parse(from as string)) / 86_400_000)
-    : clamp(Number(query.days) || 30, 1, 90)
+  if (isValidRange(from, to)) {
+    return {
+      from,
+      to,
+      days: Math.round((Date.parse(to as string) - Date.parse(from as string)) / 86_400_000),
+    }
+  }
+
+  return { from: null, to: null, days: clamp(Number(query.days) || 30, 1, 90) }
+}
+
+export function parseParams(query: Record<string, string | undefined>): GraphParams {
+  const { from, to, days } = resolveDateRange(query)
 
   return {
-    username,
+    username: query.user ?? '',
     theme: query.theme ?? 'default',
     days,
-    from: hasValidRange ? from : null,
-    to: hasValidRange ? to : null,
+    from,
+    to,
     height: clamp(Number(query.height) || 400, 200, 600),
     radius: clamp(Number(query.radius) || 8, 0, 30),
     area: parseBool(query.area, false),
     grid: parseBool(query.grid, true),
     title: query.title === 'false' ? null : (query.title ?? null),
     hideTitle: query.title === 'false',
-    colors: {
-      bg: query.bg,
-      border: query.border,
-      text: query.text,
-      titleColor: query['title-color'],
-      line: query.line,
-      point: query.point,
-      fill: query.fill,
-    },
+    colors: parseColors(query),
   }
 }
