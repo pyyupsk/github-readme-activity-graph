@@ -38,6 +38,7 @@ export async function fetchContributions(
         query: contributionsQuery,
         variables: { login: username, from, to },
       }),
+      signal: AbortSignal.timeout(5000),
     }),
   )
 
