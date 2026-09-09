@@ -25,10 +25,19 @@ function styleBlock(colors: Colors): string {
     <style>
       .title { font: 600 20px 'Segoe UI', Ubuntu, sans-serif; fill: #${colors.titleColor}; }
       .grid { stroke: #${colors.text}; stroke-width: 1px; stroke-opacity: 0.3; stroke-dasharray: 2px; }
-      .line { fill: none; stroke: #${colors.line}; stroke-width: 3px; }
+      .line { fill: none; stroke: #${colors.line}; stroke-width: 3px; stroke-dasharray: 5000; stroke-dashoffset: 5000; animation: dash 5s ease-in-out forwards; }
       .area { fill: #${colors.fill}; fill-opacity: 0.15; stroke: none; }
-      .point { fill: #${colors.point}; }
+      .point { fill: #${colors.point}; animation: blink 1s ease-in-out forwards; }
       .label { font: 400 11px 'Segoe UI', Ubuntu, sans-serif; fill: #${colors.text}; }
+
+      @keyframes dash {
+        to { stroke-dashoffset: 0; }
+      }
+
+      @keyframes blink {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
     </style>
   `
 }
