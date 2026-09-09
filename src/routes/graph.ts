@@ -1,7 +1,9 @@
-import { Hono } from 'hono'
+import { createRoute, OpenAPIHono } from '@hono/zod-openapi'
+import { z } from 'zod'
 
 import { describeError, fetchContributions } from '../github/client'
 import { withCache } from '../lib/cache'
+import { graphQuerySchema } from '../lib/openapi'
 import type { GraphParams } from '../lib/params'
 import { parseParams, resolveRange } from '../lib/params'
 import { errorSvg, graphSvg } from '../render/svg'
@@ -9,14 +11,26 @@ import { resolveColors } from '../render/theme'
 
 type Bindings = { GH_TOKEN: string }
 
-export const graphRoute = new Hono<{ Bindings: Bindings }>()
+export const graphRoute = new OpenAPIHono<{ Bindings: Bindings }>()
 
 function resolveTitle(params: GraphParams, name: string | null | undefined): string | null {
   if (params.hideTitle) return null
   return params.title ?? `${name ?? params.username}'s Contribution Graph`
 }
 
-graphRoute.get('/graph', (c) =>
+const route = createRoute({
+  method: 'get',
+  path: '/graph',
+  request: { query: graphQuerySchema },
+  responses: {
+    200: {
+      description: 'Contribution graph as an SVG image',
+      content: { 'image/svg+xml': { schema: z.string() } },
+    },
+  },
+})
+
+graphRoute.openapi(route, (c) =>
   withCache(c.req.raw, c.executionCtx, async () => {
     const params = parseParams(c.req.query())
 
