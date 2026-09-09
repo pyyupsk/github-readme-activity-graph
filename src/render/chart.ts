@@ -29,7 +29,7 @@ export function buildChart(days: ContributionDay[], { width, height, padding }: 
 
   const baseline = padding.top + plotHeight
   const areaPath = points.length
-    ? `${linePath} L${points[points.length - 1].x},${baseline} L${points[0].x},${baseline} Z`
+    ? `${linePath} L${points.at(-1)!.x},${baseline} L${points[0].x},${baseline} Z`
     : ''
 
   const gridSteps = 4
