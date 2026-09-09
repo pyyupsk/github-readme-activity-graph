@@ -344,6 +344,11 @@ const themes: Record<string, Colors> = {
 // "redical" accepted as an alias of "radical" (see #236 upstream).
 themes.redical = themes.radical
 
-export function selectTheme(name: string): Colors {
+function selectTheme(name: string): Colors {
   return themes[name] ?? themes.default
+}
+
+export function resolveColors(theme: string, overrides: ColorOverrides): Colors {
+  const defined = Object.fromEntries(Object.entries(overrides).filter(([, v]) => v))
+  return { ...selectTheme(theme), ...defined }
 }

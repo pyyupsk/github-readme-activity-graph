@@ -2,20 +2,14 @@ import { Hono } from 'hono'
 
 import { describeError, fetchContributions } from '../github/client'
 import { withCache } from '../lib/cache'
-import type { ColorOverrides, GraphParams } from '../lib/params'
+import type { GraphParams } from '../lib/params'
 import { parseParams, resolveRange } from '../lib/params'
 import { errorSvg, graphSvg } from '../render/svg'
-import type { Colors } from '../render/theme'
-import { selectTheme } from '../render/theme'
+import { resolveColors } from '../render/theme'
 
 type Bindings = { GH_TOKEN: string }
 
 export const graphRoute = new Hono<{ Bindings: Bindings }>()
-
-function resolveColors(theme: string, overrides: ColorOverrides): Colors {
-  const defined = Object.fromEntries(Object.entries(overrides).filter(([, v]) => v))
-  return { ...selectTheme(theme), ...defined }
-}
 
 function resolveTitle(params: GraphParams, name: string | null | undefined): string | null {
   if (params.hideTitle) return null
