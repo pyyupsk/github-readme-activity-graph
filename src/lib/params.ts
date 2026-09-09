@@ -86,8 +86,17 @@ function resolveDateRange(query: Record<string, string | undefined>): {
   return { from: null, to: null, days: clamp(Number(query.days) || 30, 1, 90) }
 }
 
+function parseTitle(query: Record<string, string | undefined>): {
+  title: string | null
+  hideTitle: boolean
+} {
+  const hideTitle = query.title === 'false'
+  return { title: hideTitle ? null : (query.title ?? null), hideTitle }
+}
+
 export function parseParams(query: Record<string, string | undefined>): GraphParams {
   const { from, to, days } = resolveDateRange(query)
+  const { title, hideTitle } = parseTitle(query)
 
   return {
     username: query.user ?? '',
@@ -99,8 +108,8 @@ export function parseParams(query: Record<string, string | undefined>): GraphPar
     radius: clamp(Number(query.radius) || 8, 0, 30),
     area: parseBool(query.area, false),
     grid: parseBool(query.grid, true),
-    title: query.title === 'false' ? null : (query.title ?? null),
-    hideTitle: query.title === 'false',
+    title,
+    hideTitle,
     colors: parseColors(query),
   }
 }
