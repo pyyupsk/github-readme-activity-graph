@@ -6,7 +6,14 @@
     "suspicious": "error",
     "perf": "error"
   },
-  "rules": {},
+  "rules": {
+    "no-console": "warn",
+    "no-debugger": "error",
+    "no-var": "error",
+    "eqeqeq": "error",
+    "no-unused-vars": "error",
+    "typescript/no-explicit-any": "error"
+  },
   "env": {
     "builtin": true
   },
