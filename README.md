@@ -59,3 +59,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 ```
 
 Requires a `GH_TOKEN` binding (GitHub personal access token, no scopes needed for public contribution data) — set it in `.dev.vars` for local dev and as a secret for deployment.
+
+## Credit
+
+Themes and the GitHub GraphQL query are ported from [Ashutosh00710/github-readme-activity-graph](https://github.com/Ashutosh00710/github-readme-activity-graph).
